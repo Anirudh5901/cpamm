@@ -4,13 +4,13 @@ pragma solidity ^0.8.24;
 import {Test} from "forge-std/Test.sol";
 import {CPAMM} from "../src/CPAMM.sol";
 import {DeployCPAMM} from "../script/DeployCPAMM.s.sol";
-import {ERC20Mock} from "../lib/openzeppelin-contracts/contracts/mocks/token/ERC20Mock.sol";
+import {MockToken} from "../script/MockToken.sol";
 
 contract CPAMMTest is Test {
     DeployCPAMM deployer;
     CPAMM cpamm;
-    ERC20Mock token0;
-    ERC20Mock token1;
+    MockToken token0;
+    MockToken token1;
     address USER = makeAddr("user");
     address DEPLOYER = address(this);
 
