@@ -394,7 +394,7 @@ function Liquidity({
               parseFloat(sharesToRemove) <= 0 ||
               parseFloat(sharesToRemove) > parseFloat(shares)
             }
-            className="w-full py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-lg font-medium disabled:bg-blue-400"
+            className="w-full py-3 bg-black hover:bg-blue-700 text-white rounded-lg font-medium disabled:bg-blue-400"
           >
             {loading ? "Removing Liquidity..." : "Remove Liquidity"}
           </button>

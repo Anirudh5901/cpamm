@@ -13,6 +13,7 @@ contract CPAMMTest is Test {
     MockToken token1;
     address USER = makeAddr("user");
     address DEPLOYER = address(this);
+    address INITIAL_DEPLOYER = 0x1804c8AB1F12E6bbf3894d4083f33e07309d1f38; // From deployment msg.sender
 
     function setUp() public {
         deployer = new DeployCPAMM();
@@ -53,25 +54,21 @@ contract CPAMMTest is Test {
 
     ////// Swap Tests //////
     function testSwapToken0ForToken1() public {
-        // Add initial liquidity from deployer
         approveTokens(100 ether, 100 ether);
         cpamm.addLiquidity(100 ether, 100 ether);
 
-        // Swap 1 ether of token0 for token1 from USER
         vm.startPrank(USER);
         token0.approve(address(cpamm), 1 ether);
         uint256 amountOut = cpamm.swap(address(token0), 1 ether);
         vm.stopPrank();
 
-        // Verify swap results
         assertGt(amountOut, 0, "Amount out should be greater than zero");
         (uint256 reserve0, uint256 reserve1) = cpamm.getReserves();
-        assertEq(reserve0, 101 ether, "Reserve0 should increase by swap amount");
-        assertEq(reserve1, 100 ether - amountOut, "Reserve1 should decrease by amount out");
+        assertEq(reserve0, 1101 ether, "Reserve0 should increase by swap amount");
+        assertEq(reserve1, 1100 ether - amountOut, "Reserve1 should decrease by amount out");
 
-        // Verify fee
         uint256 amountInWithFee = (1 ether * 997) / 1000;
-        uint256 expectedAmountOut = (100 ether * amountInWithFee) / (100 ether + amountInWithFee);
+        uint256 expectedAmountOut = (1100 ether * amountInWithFee) / (1100 ether + amountInWithFee);
         assertEq(amountOut, expectedAmountOut, "Fee calculation incorrect");
     }
 
@@ -86,8 +83,12 @@ contract CPAMMTest is Test {
 
         assertGt(amountOut, 0, "Amount out should be greater than zero");
         (uint256 reserve0, uint256 reserve1) = cpamm.getReserves();
-        assertEq(reserve1, 101 ether, "Reserve1 should increase by swap amount");
-        assertEq(reserve0, 100 ether - amountOut, "Reserve0 based on amount out");
+        assertEq(reserve1, 1101 ether, "Reserve1 should increase by swap amount");
+        assertEq(reserve0, 1100 ether - amountOut, "Reserve0 should decrease by amount out");
+
+        uint256 amountInWithFee = (1 ether * 997) / 1000;
+        uint256 expectedAmountOut = (1100 ether * amountInWithFee) / (1100 ether + amountInWithFee);
+        assertEq(amountOut, expectedAmountOut, "Fee calculation incorrect");
     }
 
     function testSwapRevertsWithInvalidToken() public {
@@ -111,10 +112,10 @@ contract CPAMMTest is Test {
 
         uint256 shares = cpamm.getShares(USER);
         assertEq(shares, 100 ether, "Initial shares incorrect");
-        assertEq(cpamm.getTotalShares(), shares, "Total shares incorrect");
+        assertEq(cpamm.getTotalShares(), 1100 ether, "Total shares incorrect");
         (uint256 reserve0, uint256 reserve1) = cpamm.getReserves();
-        assertEq(reserve0, amount0, "Reserve0 incorrect");
-        assertEq(reserve1, amount1, "Reserve1 incorrect");
+        assertEq(reserve0, 1100 ether, "Reserve0 incorrect");
+        assertEq(reserve1, 1100 ether, "Reserve1 incorrect");
     }
 
     function testAddLiquidityMaintainsRatio() public {
@@ -126,10 +127,10 @@ contract CPAMMTest is Test {
 
         uint256 shares = cpamm.getShares(USER);
         assertEq(shares, 50 ether, "Shares should be proportional");
-        assertEq(cpamm.getTotalShares(), 150 ether, "Total shares incorrect");
+        assertEq(cpamm.getTotalShares(), 1150 ether, "Total shares incorrect");
         (uint256 reserve0, uint256 reserve1) = cpamm.getReserves();
-        assertEq(reserve0, 150 ether, "Reserve0 incorrect");
-        assertEq(reserve1, 150 ether, "Reserve1 incorrect");
+        assertEq(reserve0, 1150 ether, "Reserve0 incorrect");
+        assertEq(reserve1, 1150 ether, "Reserve1 incorrect");
     }
 
     function testAddLiquidityRevertsOnRatioMismatch() public {
@@ -143,12 +144,10 @@ contract CPAMMTest is Test {
     }
 
     function testAddLiquidityRevertsOnZeroShares() public {
-        // Add large initial liquidity from deployer
         approveTokens(10000 ether, 10000 ether);
         cpamm.addLiquidity(10000 ether, 10000 ether);
 
-        // Try to add tiny amount from USER
-        approveTokensFromUser(1, 1); // 1 wei
+        approveTokensFromUser(1, 1);
         vm.prank(USER);
         vm.expectRevert(CPAMM.CPAMM__NoSharesMinted.selector);
         cpamm.addLiquidity(1, 1);
@@ -166,10 +165,10 @@ contract CPAMMTest is Test {
         assertEq(amount0, 500 ether, "Amount0 withdrawn incorrect");
         assertEq(amount1, 500 ether, "Amount1 withdrawn incorrect");
         assertEq(cpamm.getShares(USER), 500 ether, "User shares incorrect");
-        assertEq(cpamm.getTotalShares(), 500 ether, "Total shares incorrect");
+        assertEq(cpamm.getTotalShares(), 1500 ether, "Total shares incorrect");
         (uint256 reserve0, uint256 reserve1) = cpamm.getReserves();
-        assertEq(reserve0, 500 ether, "Reserve0 incorrect");
-        assertEq(reserve1, 500 ether, "Reserve1 incorrect");
+        assertEq(reserve0, 1500 ether, "Reserve0 incorrect");
+        assertEq(reserve1, 1500 ether, "Reserve1 incorrect");
     }
 
     function testRemoveLiquidityRevertsOnZeroAmountOut() public {
@@ -178,7 +177,7 @@ contract CPAMMTest is Test {
 
         vm.prank(USER);
         vm.expectRevert(CPAMM.CPAMM__AmountOutZero.selector);
-        cpamm.removeLiquidity(1); // 1 wei of shares
+        cpamm.removeLiquidity(1);
     }
 
     function testRemoveLiquidityRevertsOnInsufficientShares() public {
@@ -192,18 +191,21 @@ contract CPAMMTest is Test {
 
     ////// View Function Tests //////
     function testViewFunctions() public {
-        assertEq(cpamm.getToken0Balance(), 0, "Initial token0 balance incorrect");
-        assertEq(cpamm.getToken1Balance(), 0, "Initial token1 balance incorrect");
+        assertEq(cpamm.getToken0Balance(), 1000 ether, "Initial token0 balance incorrect");
+        assertEq(cpamm.getToken1Balance(), 1000 ether, "Initial token1 balance incorrect");
+
+        // Check initial deployer's shares (from DeployCPAMM.s.sol)
+        //assertEq(cpamm.getShares(INITIAL_DEPLOYER), 1000 ether, "Initial deployer shares incorrect");
 
         approveTokens(100 ether, 100 ether);
         cpamm.addLiquidity(100 ether, 100 ether);
 
-        assertEq(cpamm.getToken0Balance(), 100 ether, "Token0 balance after liquidity incorrect");
-        assertEq(cpamm.getToken1Balance(), 100 ether, "Token1 balance after liquidity incorrect");
-        assertEq(cpamm.getShares(DEPLOYER), 100 ether, "Deployer shares incorrect");
-        assertEq(cpamm.getTotalShares(), 100 ether, "Total shares incorrect");
+        assertEq(cpamm.getToken0Balance(), 1100 ether, "Token0 balance after liquidity incorrect");
+        assertEq(cpamm.getToken1Balance(), 1100 ether, "Token1 balance after liquidity incorrect");
+        assertEq(cpamm.getShares(DEPLOYER), 1100 ether, "Deployer shares incorrect");
+        assertEq(cpamm.getTotalShares(), 1100 ether, "Total shares incorrect");
         (uint256 reserve0, uint256 reserve1) = cpamm.getReserves();
-        assertEq(reserve0, 100 ether, "Reserve0 incorrect");
-        assertEq(reserve1, 100 ether, "Reserve1 incorrect");
+        assertEq(reserve0, 1100 ether, "Reserve0 incorrect");
+        assertEq(reserve1, 1100 ether, "Reserve1 incorrect");
     }
 }

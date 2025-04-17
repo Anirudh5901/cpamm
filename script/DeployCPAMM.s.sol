@@ -1,32 +1,31 @@
 // SPDX-License-Identifier: MIT
-
 pragma solidity ^0.8.24;
 
-import "forge-std/Script.sol";
-import "../src/CPAMM.sol";
+import {Script} from "forge-std/Script.sol";
+import {CPAMM} from "../src/CPAMM.sol";
 import {MockToken} from "../script/MockToken.sol";
 
 contract DeployCPAMM is Script {
-    function run() external returns (CPAMM, MockToken, MockToken) {
-        vm.startBroadcast();
+    CPAMM cpamm;
+    MockToken token0;
+    MockToken token1;
 
-        // Deploy mock ERC20 tokens
-        MockToken token0 = new MockToken("Token A", "TKA");
-        MockToken token1 = new MockToken("Token B", "TKB");
+    function run() public returns (CPAMM, MockToken, MockToken) {
+        // Store msg.sender to ensure consistent use
+        address deployer = msg.sender;
 
-        // Deploy CPAMM with token addresses
-        CPAMM cpamm = new CPAMM(address(token0), address(token1));
+        vm.startBroadcast(deployer);
+        token0 = new MockToken("Token A", "TKA");
+        token1 = new MockToken("Token B", "TKB");
+        cpamm = new CPAMM(address(token0), address(token1));
 
-        // Mint tokens to deployer for initial liquidity
-        uint256 initialLiquidity = 1000 ether; // 1000 tokens of each
-        token0.mint(msg.sender, initialLiquidity);
-        token1.mint(msg.sender, initialLiquidity);
+        uint256 initialLiquidity = 1000 ether;
+        token0.mint(deployer, initialLiquidity);
+        token1.mint(deployer, initialLiquidity);
 
-        // Approve CPAMM to spend tokens
+        // Approve and add liquidity as deployer
         token0.approve(address(cpamm), initialLiquidity);
         token1.approve(address(cpamm), initialLiquidity);
-
-        // Add initial liquidity
         cpamm.addLiquidity(initialLiquidity, initialLiquidity);
 
         vm.stopBroadcast();
