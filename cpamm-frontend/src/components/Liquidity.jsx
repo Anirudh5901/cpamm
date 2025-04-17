@@ -296,7 +296,7 @@ function Liquidity({
 
           {parseFloat(reserves.reserve0) > 0 &&
             parseFloat(reserves.reserve1) > 0 && (
-              <div className="text-sm text-gray-600">
+              <div className="text-sm text-blue-600">
                 Pool ratio: 1 {token0Symbol} ={" "}
                 {(
                   parseFloat(reserves.reserve1) / parseFloat(reserves.reserve0)
@@ -306,7 +306,7 @@ function Liquidity({
             )}
 
           {amount0 && amount1 && (
-            <div className="text-sm text-gray-600">
+            <div className="text-sm text-blue-600">
               You will receive approximately {calculatePoolPercentage()}% of the
               pool
             </div>

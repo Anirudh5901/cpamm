@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { ethers } from "ethers";
+import { Vortex } from "./components/ui/vortex";
 import Header from "./components/Header";
 import ConnectWallet from "./components/ConnectWallet";
 import Tabs from "./components/Tabs";
@@ -141,52 +142,59 @@ function App() {
     <div className="min-h-screen bg-gray-100 text-gray-900">
       <Header account={account} />
 
-      <main className="container mx-auto px-4 py-8">
+      <main className=" mx-auto overflow-hidden">
         {!account ? (
           <ConnectWallet connectWallet={connectWallet} isLoading={isLoading} />
         ) : (
-          <div className="max-w-lg mx-auto bg-white rounded-lg shadow-md overflow-hidden">
-            <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
+          <div className=" mx-auto overflow-hidden h-[100vh]">
+            <Vortex
+              backgroundColor="black"
+              className="flex items-center flex-col justify-center md:px-10  w-full h-full min-w-lg"
+            >
+              <div className="min-w-lg mx-auto border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] rounded-lg shadow-md overflow-hidden w-[60vw]">
+                <Tabs activeTab={activeTab} setActiveTab={setActiveTab} />
 
-            <div className="p-6">
-              {activeTab === "swap" && (
-                <Swap
-                  cpammContract={cpammContract}
-                  token0Contract={token0Contract}
-                  token1Contract={token1Contract}
-                  token0Address={token0Address}
-                  token1Address={token1Address}
-                  token0Symbol={token0Symbol}
-                  token1Symbol={token1Symbol}
-                  reserves={reserves}
-                  refreshData={() => refreshData(cpammContract, account)}
-                />
-              )}
+                <div className="p-6">
+                  {activeTab === "swap" && (
+                    <Swap
+                      cpammContract={cpammContract}
+                      token0Contract={token0Contract}
+                      token1Contract={token1Contract}
+                      token0Address={token0Address}
+                      token1Address={token1Address}
+                      token0Symbol={token0Symbol}
+                      token1Symbol={token1Symbol}
+                      reserves={reserves}
+                      refreshData={() => refreshData(cpammContract, account)}
+                    />
+                  )}
 
-              {activeTab === "liquidity" && (
-                <Liquidity
-                  cpammContract={cpammContract}
-                  token0Contract={token0Contract}
-                  token1Contract={token1Contract}
-                  token0Address={token0Address}
-                  token1Address={token1Address}
-                  token0Symbol={token0Symbol}
-                  token1Symbol={token1Symbol}
-                  reserves={reserves}
-                  shares={shares}
-                  totalShares={totalShares}
-                  refreshData={() => refreshData(cpammContract, account)}
-                />
-              )}
+                  {activeTab === "liquidity" && (
+                    <Liquidity
+                      cpammContract={cpammContract}
+                      token0Contract={token0Contract}
+                      token1Contract={token1Contract}
+                      token0Address={token0Address}
+                      token1Address={token1Address}
+                      token0Symbol={token0Symbol}
+                      token1Symbol={token1Symbol}
+                      reserves={reserves}
+                      shares={shares}
+                      totalShares={totalShares}
+                      refreshData={() => refreshData(cpammContract, account)}
+                    />
+                  )}
 
-              <Stats
-                token0Symbol={token0Symbol}
-                token1Symbol={token1Symbol}
-                reserves={reserves}
-                shares={shares}
-                totalShares={totalShares}
-              />
-            </div>
+                  <Stats
+                    token0Symbol={token0Symbol}
+                    token1Symbol={token1Symbol}
+                    reserves={reserves}
+                    shares={shares}
+                    totalShares={totalShares}
+                  />
+                </div>
+              </div>
+            </Vortex>
           </div>
         )}
       </main>

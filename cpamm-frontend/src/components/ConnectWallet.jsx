@@ -1,21 +1,29 @@
 import React from "react";
+import { Vortex } from "./ui/vortex";
 
-function ConnectWallet({ connectWallet, isLoading }) {
+export default function ConnectWallet({ connectWallet, isLoading }) {
   return (
-    <div className="max-w-md mx-auto bg-white rounded-lg shadow-md p-8 text-center">
-      <h2 className="text-2xl font-semibold mb-6">Welcome to Mini-Swap V2</h2>
-      <p className="mb-6 text-gray-600">
-        Connect your wallet to start trading and providing liquidity
-      </p>
-      <button
-        className="bg-blue-600 hover:bg-blue-700 text-white font-medium py-2 px-6 rounded-lg w-full transition duration-300"
-        onClick={connectWallet}
-        disabled={isLoading}
+    <div className="w-full mx-auto h-[100vh] overflow-hidden">
+      <Vortex
+        backgroundColor="black"
+        className="flex items-center flex-col justify-center px-2 md:px-10 py-4 w-full h-full"
       >
-        {isLoading ? "Connecting..." : "Connect Wallet"}
-      </button>
+        <h2 className="text-white text-2xl md:text-6xl font-bold text-center">
+          Welcome to Mini-Swap V2
+        </h2>
+        <p className="text-white text-sm md:text-2xl max-w-xl mt-6 text-center">
+          Connect your wallet to start trading and providing liquidity
+        </p>
+        <div className="flex flex-col sm:flex-row items-center gap-4 mt-6">
+          <button
+            className="inline-flex h-12 animate-shimmer items-center justify-center rounded-md border border-slate-800 bg-[linear-gradient(110deg,#000103,45%,#1e2631,55%,#000103)] bg-[length:200%_100%] px-6 font-medium text-slate-400 transition-colors focus:outline-none focus:ring-2 focus:ring-slate-400 focus:ring-offset-2 focus:ring-offset-slate-50"
+            onClick={connectWallet}
+            disabled={isLoading}
+          >
+            {isLoading ? "Connecting..." : "Connect Wallet"}
+          </button>
+        </div>
+      </Vortex>
     </div>
   );
 }
-
-export default ConnectWallet;

@@ -158,7 +158,7 @@ function Swap({
 
   return (
     <div>
-      <h2 className="text-xl font-semibold mb-4">Swap Tokens</h2>
+      <h2 className="text-xl font-semibold mb-4 text-blue-600">Swap Tokens</h2>
 
       <div className="space-y-4">
         <div className="bg-gray-100 p-4 rounded-lg">
